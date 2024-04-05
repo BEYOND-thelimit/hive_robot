@@ -65,18 +65,18 @@ LaserScanMatcher::LaserScanMatcher() : Node("laser_scan_matcher"), initialized_(
   // Initiate parameters
 
    RCLCPP_INFO(get_logger(), "Creating laser_scan_matcher");
-  add_parameter("publish_odom", rclcpp::ParameterValue(std::string("")),
+  add_parameter("publish_odom", rclcpp::ParameterValue(std::string("robot1/laser_odom")),
     "If publish odometry from laser_scan. Empty if not, otherwise name of the topic");
-  add_parameter("publish_tf",   rclcpp::ParameterValue(false),
+  add_parameter("publish_tf",   rclcpp::ParameterValue(true),
     " If publish tf odom->base_link");
 
-  add_parameter("base_frame", rclcpp::ParameterValue(std::string("base_link")),
+  add_parameter("base_frame", rclcpp::ParameterValue(std::string("robot1_base_link")),
     "Which frame to use for the robot base");
-  add_parameter("odom_frame", rclcpp::ParameterValue(std::string("odom")),
+  add_parameter("odom_frame", rclcpp::ParameterValue(std::string("robot1_odom")),
     "Which frame to use for the odom");
-  add_parameter("map_frame", rclcpp::ParameterValue(std::string("map")),
+  add_parameter("map_frame", rclcpp::ParameterValue(std::string("world")),
     "Which frame to use for the map");
-  add_parameter("laser_frame", rclcpp::ParameterValue(std::string("laser")),
+  add_parameter("laser_frame", rclcpp::ParameterValue(std::string("robot1_lidar_link")),
     "Which frame to use for the laser");
   add_parameter("kf_dist_linear", rclcpp::ParameterValue(0.10),
     "When to generate keyframe scan.");
