@@ -1,0 +1,40 @@
+{
+    "python.autoComplete.extraPaths": [
+        "/home/kgw/hive_ws/build/hive_control",
+        "/home/kgw/hive_ws/install/hive_control/lib/python3.10/site-packages",
+        "/home/kgw/turtlebot3_ws/build/turtlebot3_teleop",
+        "/home/kgw/turtlebot3_ws/install/turtlebot3_teleop/lib/python3.10/site-packages",
+        "/home/kgw/turtlebot3_ws/build/turtlebot3_example",
+        "/home/kgw/turtlebot3_ws/install/turtlebot3_example/lib/python3.10/site-packages",
+        "/home/kgw/turtlebot3_ws/install/turtlebot3_msgs/local/lib/python3.10/dist-packages",
+        "/home/kgw/turtlebot3_ws/install/dynamixel_sdk_custom_interfaces/local/lib/python3.10/dist-packages",
+        "/home/kgw/beyond_ws/build/hive_control",
+        "/home/kgw/beyond_ws/install/hive_control/lib/python3.10/site-packages",
+        "/home/kgw/beyond_ws/build/geunwoo_description",
+        "/home/kgw/beyond_ws/install/geunwoo_description/lib/python3.10/site-packages",
+        "/home/kgw/robot_ws/install/ur_robot_driver/local/lib/python3.10/dist-packages",
+        "/home/kgw/robot_ws/install/ur_moveit_config/local/lib/python3.10/dist-packages",
+        "/home/kgw/robot_ws/install/ur_dashboard_msgs/local/lib/python3.10/dist-packages",
+        "/opt/ros/humble/lib/python3.10/site-packages",
+        "/opt/ros/humble/local/lib/python3.10/dist-packages"
+    ],
+    "python.analysis.extraPaths": [
+        "/home/kgw/hive_ws/build/hive_control",
+        "/home/kgw/hive_ws/install/hive_control/lib/python3.10/site-packages",
+        "/home/kgw/turtlebot3_ws/build/turtlebot3_teleop",
+        "/home/kgw/turtlebot3_ws/install/turtlebot3_teleop/lib/python3.10/site-packages",
+        "/home/kgw/turtlebot3_ws/build/turtlebot3_example",
+        "/home/kgw/turtlebot3_ws/install/turtlebot3_example/lib/python3.10/site-packages",
+        "/home/kgw/turtlebot3_ws/install/turtlebot3_msgs/local/lib/python3.10/dist-packages",
+        "/home/kgw/turtlebot3_ws/install/dynamixel_sdk_custom_interfaces/local/lib/python3.10/dist-packages",
+        "/home/kgw/beyond_ws/build/hive_control",
+        "/home/kgw/beyond_ws/install/hive_control/lib/python3.10/site-packages",
+        "/home/kgw/beyond_ws/build/geunwoo_description",
+        "/home/kgw/beyond_ws/install/geunwoo_description/lib/python3.10/site-packages",
+        "/home/kgw/robot_ws/install/ur_robot_driver/local/lib/python3.10/dist-packages",
+        "/home/kgw/robot_ws/install/ur_moveit_config/local/lib/python3.10/dist-packages",
+        "/home/kgw/robot_ws/install/ur_dashboard_msgs/local/lib/python3.10/dist-packages",
+        "/opt/ros/humble/lib/python3.10/site-packages",
+        "/opt/ros/humble/local/lib/python3.10/dist-packages"
+    ]
+}
