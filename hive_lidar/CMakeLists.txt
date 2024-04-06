@@ -17,13 +17,16 @@ find_package(sensor_msgs REQUIRED)
 add_executable(scan_converter src/scan_converter.cpp)
 ament_target_dependencies(scan_converter rclcpp std_msgs sensor_msgs)
 
+add_executable(scan_converter2 src/scan_converter_2.cpp)
+ament_target_dependencies(scan_converter2 rclcpp std_msgs sensor_msgs)
+
 # target_include_directories(scan_converter PUBLIC
 #   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
 #   $<INSTALL_INTERFACE:include>)
 
 # target_compile_features(scan_converter PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
 
-install(TARGETS scan_converter
+install(TARGETS scan_converter scan_converter2
   DESTINATION lib/${PROJECT_NAME})
 
 if(BUILD_TESTING)
