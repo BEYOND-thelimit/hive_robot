@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include <vector>
+#include <limits>
 
 class ScanConverter2 : public rclcpp::Node
 {
@@ -94,6 +95,7 @@ void ScanConverter2::sub_callback(const sensor_msgs::msg::LaserScan::SharedPtr m
   float min_max_range_in_3 = abs(temp_scan[lower_3_index] - temp_scan[upper_3_index]);
   float min_max_range_in_4 = abs(temp_scan[lower_4_index] - temp_scan[upper_4_index]);
 
+  float inf = std::numeric_limits<float>::infinity();
   // first profile
   if ( min_max_range_in_1 < range_threshold)
   {
@@ -114,7 +116,7 @@ void ScanConverter2::sub_callback(const sensor_msgs::msg::LaserScan::SharedPtr m
   {
     for (int i = 0; i < first_profile_index.size(); i++)
     {
-      temp_scan[first_profile_index[i]] = -1;
+      temp_scan[first_profile_index[i]] = inf;
     }
   }
   // second profile
@@ -137,7 +139,7 @@ void ScanConverter2::sub_callback(const sensor_msgs::msg::LaserScan::SharedPtr m
   {
     for (int i = 0; i < second_profile_index.size(); i++)
     {
-      temp_scan[second_profile_index[i]] = -1;
+      temp_scan[second_profile_index[i]] = inf;
     }
   }
   // third profile
@@ -160,7 +162,7 @@ void ScanConverter2::sub_callback(const sensor_msgs::msg::LaserScan::SharedPtr m
   {
     for (int i = 0; i < third_profile_index.size(); i++)
     {
-      temp_scan[third_profile_index[i]] = -1;
+      temp_scan[third_profile_index[i]] = inf;
     }
   }
   // fourth profile
@@ -183,7 +185,7 @@ void ScanConverter2::sub_callback(const sensor_msgs::msg::LaserScan::SharedPtr m
   {
     for (int i = 0; i < fourth_profile_index.size(); i++)
     {
-      temp_scan[fourth_profile_index[i]] = -1;
+      temp_scan[fourth_profile_index[i]] = inf;
     }
   }
   for (int i = 0; i < msg->ranges.size(); i++)
