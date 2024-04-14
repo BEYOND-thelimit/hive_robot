@@ -15,7 +15,9 @@ def generate_launch_description():
         executable='ekf_node',
         name='ekf_filter_node',
         output='screen',
-        parameters=[config_ekf],
+        parameters=[config_ekf,
+                    {'use_sim_time': True},
+                    ],
         remappings=[
             ('/cmd_vel', '/robot1/cmd_vel'),
         ]
