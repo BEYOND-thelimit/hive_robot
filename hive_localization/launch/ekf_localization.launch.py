@@ -2,26 +2,27 @@ from launch import LaunchDescription
 from launch_ros.actions import Node
 from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration
+import os
+from ament_index_python.packages import get_package_share_directory
 
 def generate_launch_description():
 
-    config_ekf = LaunchConfiguration('config_ekf', default='$(find robot_localization)/config/ekf_config.yaml')
+    share_dir = get_package_share_directory('hive_localization')
+    config_ekf = os.path.join(share_dir, 'config', 'ekf_config.yaml')
+
+    start_robot_localization_cmd = Node(
+        package='robot_localization',
+        executable='ekf_node',
+        name='ekf_filter_node',
+        output='screen',
+        parameters=[config_ekf,
+                    {'use_sim_time': True},
+                    ],
+        remappings=[
+            ('/cmd_vel', '/robot1/cmd_vel'),
+        ]
+    )
 
     return LaunchDescription([
-        DeclareLaunchArgument(
-            'config_ekf',
-            default_value=config_ekf,
-            description='Path to the configuration file for the EKF node.'
-        ),
-
-        Node(
-            package='robot_localization',
-            executable='ekf_node',
-            name='ekf_localization',
-            output='screen',
-            parameters=[config_ekf],
-            remappings=[
-                # Add any necessary topic remappings here
-            ],
-        ),
+        start_robot_localization_cmd
     ])
