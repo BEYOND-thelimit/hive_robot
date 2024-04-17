@@ -38,9 +38,7 @@ class RobotLocalization : public rclcpp::Node
  public:
   RobotLocalization(/* args */);
   ~RobotLocalization();
-  rclcpp::Subscription<sensor_msgs::msg::Imu>::SharedPtr imu_sub_;
   rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr encoder_odom_sub_;
-  rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr laser_odom_sub_;
   rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr camera_odom_sub_;
   rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odom_pub_;
   rclcpp::TimerBase::SharedPtr timer_;
@@ -54,19 +52,14 @@ class RobotLocalization : public rclcpp::Node
  private:
   /* data */
   Pose pose_from_encoder;
-  Pose pose_from_laser;
   Pose pose_from_camera;
   Pose pose_filtered;
 };
 
 RobotLocalization::RobotLocalization(/* args */) : Node("robot1_localization_node")
 {
-  imu_sub_ = this->create_subscription<sensor_msgs::msg::Imu>("robot1/imu", 10,
-    std::bind(&RobotLocalization::imuCallback, this, std::placeholders::_1));
   encoder_odom_sub_ = this->create_subscription<nav_msgs::msg::Odometry>("robot1/odom_noise", 10,
     std::bind(&RobotLocalization::encoderOdomCallback, this, std::placeholders::_1));
-  laser_odom_sub_ = this->create_subscription<nav_msgs::msg::Odometry>("robot1/laser_odom", 10,
-    std::bind(&RobotLocalization::laserOdomCallback, this, std::placeholders::_1));
   camera_odom_sub_ = this->create_subscription<nav_msgs::msg::Odometry>("robot1/camera_odom", 10,
     std::bind(&RobotLocalization::cameraOdomCallback, this, std::placeholders::_1));
   odom_pub_ = this->create_publisher<nav_msgs::msg::Odometry>("robot1/filtered_odom", 10);
@@ -89,13 +82,6 @@ void RobotLocalization::encoderOdomCallback(const nav_msgs::msg::Odometry::Share
   pose_from_encoder.setYaw(tf2::getYaw(encoder_odom_msg->pose.pose.orientation));
 }
 
-void RobotLocalization::laserOdomCallback(const nav_msgs::msg::Odometry::SharedPtr laser_odom_msg)
-{
-  pose_from_laser.setX(laser_odom_msg->pose.pose.position.x);
-  pose_from_laser.setY(laser_odom_msg->pose.pose.position.y);
-  pose_from_laser.setYaw(tf2::getYaw(laser_odom_msg->pose.pose.orientation));
-}
-
 void RobotLocalization::cameraOdomCallback(const nav_msgs::msg::Odometry::SharedPtr camera_odom_msg)
 {
   pose_from_camera.setX(camera_odom_msg->pose.pose.position.x);
@@ -105,10 +91,13 @@ void RobotLocalization::cameraOdomCallback(const nav_msgs::msg::Odometry::Shared
 
 void RobotLocalization::timerCallback()
 {
-  // TODO: 평균말고 다른 filtering 알고리즘 생각하기. yaw는 imu만 쓸까 고민 중.
-  pose_filtered.setX((pose_from_encoder.getX() + pose_from_laser.getX()) / 2);
-  pose_filtered.setY((pose_from_encoder.getY() + pose_from_laser.getY()) / 2);
-  pose_filtered.setYaw((pose_from_encoder.getYaw() + pose_from_laser.getYaw()) / 2);
+  /* TODO: 평균말고 다른 filtering 알고리즘 생각하기. EKF
+   yaw는 imu만 쓸까 고민 중. 진짜 여기 어떻게 하지.
+   파라미터 딸깍 한다 생각해서 아예 생각 안해놨는데
+   */
+  pose_filtered.setX((pose_from_encoder.getX() + pose_from_camera.getX()) / 2);
+  pose_filtered.setY((pose_from_encoder.getY() + pose_from_camera.getY()) / 2);
+  pose_filtered.setYaw((pose_from_encoder.getYaw() + pose_from_camera.getYaw()) / 2);
 
   // filtered odom publish
   nav_msgs::msg::Odometry odom_msg;
