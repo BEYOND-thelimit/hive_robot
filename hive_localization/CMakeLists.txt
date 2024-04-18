@@ -29,24 +29,13 @@ ament_target_dependencies(laser_scan_matcher_node
   tf2_geometry_msgs
 )
 
-add_executable(pose_estimation src/pose_estimation.cpp)
-ament_target_dependencies(pose_estimation
-  rclcpp
-  sensor_msgs
-  geometry_msgs
-  nav_msgs
-  tf2
-  tf2_ros
-  tf2_geometry_msgs
-)
-
 target_include_directories(laser_scan_matcher_node
   PRIVATE
   "include"
 )
 
 # node
-install(TARGETS laser_scan_matcher_node pose_estimation
+install(TARGETS laser_scan_matcher_node
   DESTINATION lib/${PROJECT_NAME}
 )
 
