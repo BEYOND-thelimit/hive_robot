@@ -1,98 +1,205 @@
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp/qos.hpp"
 #include "sensor_msgs/msg/laser_scan.hpp"
-#include <cmath>   // M_PI와 std::fmod 함수를 사용하기 위한 헤더
-#include <iomanip> // std::fixed와 std::setprecision 함수를 사용하기 위한 헤더
-#include <limits>  // std::numeric_limits를 사용하기 위해 필요한 헤더
 
-bool frame_flag = false;
-double temp_range = 0.0;
+#include <stdio.h>
+#include <vector>
+#include <limits>
 
-
-class ScanConverter : public rclcpp::Node
+class ScanConverter2 : public rclcpp::Node
 {
-public:
-  ScanConverter()
-      : Node("scan_converter")
-  {
-    // "/robot1/scan" 토픽으로부터 LaserScan 메시지를 구독합니다.
-    // rclcpp::SensorDataQoS()는 센서 데이터에 적합한 QoS 프로필을 제공합니다.
-    subscription_ = this->create_subscription<sensor_msgs::msg::LaserScan>(
-        "/robot1/scan", rclcpp::SensorDataQoS(), std::bind(&ScanConverter::topic_callback, this, std::placeholders::_1));
+ public:
+  ScanConverter2(/* args */);
+  ~ScanConverter2();
+  void sub_callback(const sensor_msgs::msg::LaserScan::SharedPtr msg);
 
-    // "/robot1/scaned_data" 토픽에 LaserScan 메시지를 발행하는 발행자를 생성합니다.
-    // 발행 큐의 크기는 10으로 설정됩니다.
-    publisher_ = this->create_publisher<sensor_msgs::msg::LaserScan>("/robot1/scaned_data", 10);
-  }
-
-private:
-  void topic_callback(const sensor_msgs::msg::LaserScan::SharedPtr msg)
-  {
-    // 받은 메시지를 복사하여 새로운 메시지 객체를 생성합니다.
-    auto filtered_msg = std::make_shared<sensor_msgs::msg::LaserScan>(*msg);
-
-    // 복사된 메시지의 ranges와 intensities 배열을 클리어합니다.
-    filtered_msg->ranges.clear();
-    filtered_msg->intensities.clear();
-
-    // RCLCPP_INFO(this->get_logger(), "Total data count: '%zu'", msg->ranges.size());
-
-    std::ostringstream oss;                    // 문자열 스트림 생성
-    oss << std::fixed << std::setprecision(3); // 소수점 아래 3자리로 고정
-
-    // 스캔 데이터를 +180에서 -180도로 조정
-    for (size_t i = 0; i < msg->ranges.size(); ++i)
-    {
-      // 현재 각도를 계산하고 도로 변환
-      double angle_rad = i * msg->angle_increment;
-      double angle_deg = 180.0 - angle_rad * (180.0 / M_PI);
-
-      // 각도를 +180에서 -180으로 조정
-      if (angle_deg < -180)
-      {
-        angle_deg += 360;
-      }
-      // oss << "[" << angle_deg << "°, " << msg->ranges[i] << "m]";
-
-      // if ((i + 1) % 10 == 0) // 10개 데이터마다 줄 바꿈
-      // {
-      //   oss << std::endl;
-      // }
-
-      if (frame_flag == false) //frame_flag == false -> 프로파일 없는 구간은 그냥 거리값 쓰겠음
-      {
-        temp_range = msg->ranges[i];
-      }
-      //frame_flag == true -> 프로파일 있는 구간은 프로파일 만나기 전 거리 그냥 쓰겠음
-      if ((angle_deg > 125.0 && angle_deg < 135.0) || (angle_deg > 35.0 && angle_deg < 50.0) || (angle_deg > -135.0 && angle_deg < -125.0) || (angle_deg > -50.0 && angle_deg < -35.0))
-      {
-        frame_flag = true;
-        filtered_msg->ranges.push_back(temp_range);
-      }
-      else
-      {
-        frame_flag = false;
-        filtered_msg->ranges.push_back(temp_range);
-      }
-
-      if (!msg->intensities.empty())
-      {
-        filtered_msg->intensities.push_back(msg->intensities[i]);
-      }
-    }
-    // RCLCPP_INFO(this->get_logger(), "\n%s", oss.str().c_str());
-    // 필터링된 데이터 발행
-    publisher_->publish(*filtered_msg);
-  }
-
+ private:
   rclcpp::Subscription<sensor_msgs::msg::LaserScan>::SharedPtr subscription_;
   rclcpp::Publisher<sensor_msgs::msg::LaserScan>::SharedPtr publisher_;
 };
 
-int main(int argc, char *argv[])
+ScanConverter2::ScanConverter2(/* args */) : Node("scan_converter2")
+{
+  subscription_ = this->create_subscription<sensor_msgs::msg::LaserScan>(
+        "/robot1/scan", rclcpp::SensorDataQoS(), std::bind(&ScanConverter2::sub_callback, this, std::placeholders::_1));
+  publisher_ = this->create_publisher<sensor_msgs::msg::LaserScan>("/robot1/converted_scan", 10);
+}
+
+ScanConverter2::~ScanConverter2()
+{
+}
+
+void ScanConverter2::sub_callback(const sensor_msgs::msg::LaserScan::SharedPtr msg)
+{
+  // converted_msg 객체 생성
+  auto converted_msg = std::make_shared<sensor_msgs::msg::LaserScan>(*msg);
+  converted_msg->ranges.clear();
+  converted_msg->intensities.clear();
+
+  // 프로파일에 해당하는 range값 -1로 변경
+  float temp_scan[msg->ranges.size()];
+  float threshold = 0.35; // 프로파일까지 거리
+  std::vector<int> first_profile_index;
+  std::vector<int> second_profile_index;
+  std::vector<int> third_profile_index;
+  std::vector<int> fourth_profile_index;
+  int profile_number = -1;
+  int flag = 0;
+  for (size_t i = 0; i < msg->ranges.size(); i++)
+  {
+    temp_scan[i] = msg->ranges[i];
+    if (temp_scan[i] < threshold)
+    {
+      temp_scan[i] = -1;
+    }
+    if (i>0 && temp_scan[i] < threshold && temp_scan[i-1]>threshold)
+    {
+      flag = 1;
+      profile_number++;
+    }
+    else if (i>0 && temp_scan[i] > threshold && temp_scan[i-1]<threshold)
+    {
+      flag = 0;
+    }
+
+    if (flag==1 && profile_number==0)
+    {
+      first_profile_index.push_back(i);
+    }
+    else if (flag==1 && profile_number==1)
+    {
+      second_profile_index.push_back(i);
+    }
+    else if (flag==1 && profile_number==2)
+    {
+      third_profile_index.push_back(i);
+    }
+    else if (flag==1 && profile_number==3)
+    {
+      fourth_profile_index.push_back(i);
+    }
+  }
+  // 프로파일 인덱스 시작과 끝의 전 후 인덱스
+  int lower_1_index= first_profile_index.front()-1;
+  int upper_1_index= first_profile_index.back()+1;
+  int lower_2_index = second_profile_index.front()-1;
+  int upper_2_index = second_profile_index.back()+1;
+  int lower_3_index = third_profile_index.front()-1;
+  int upper_3_index = third_profile_index.back()+1;
+  int lower_4_index = fourth_profile_index.front()-1;
+  int upper_4_index = fourth_profile_index.back()+1;
+
+  float range_threshold = 0.5;
+  float min_max_range_in_1 = abs(temp_scan[lower_1_index] - temp_scan[upper_1_index]);
+  float min_max_range_in_2 = abs(temp_scan[lower_2_index] - temp_scan[upper_2_index]);
+  float min_max_range_in_3 = abs(temp_scan[lower_3_index] - temp_scan[upper_3_index]);
+  float min_max_range_in_4 = abs(temp_scan[lower_4_index] - temp_scan[upper_4_index]);
+
+  float inf = std::numeric_limits<float>::infinity();
+  // first profile
+  if ( min_max_range_in_1 < range_threshold)
+  {
+    float one_step_in_1 = min_max_range_in_1 / first_profile_index.size();
+    for (int i = 0; i < first_profile_index.size(); i++)
+    {
+      if (temp_scan[lower_1_index] <= temp_scan[upper_1_index])
+      {
+        temp_scan[first_profile_index[i]] = temp_scan[lower_1_index] + one_step_in_1 * i;
+      }
+      else
+      {
+        temp_scan[first_profile_index[i]] = temp_scan[lower_1_index] - one_step_in_1 * i;
+      }
+    }
+  }
+  else
+  {
+    for (int i = 0; i < first_profile_index.size(); i++)
+    {
+      temp_scan[first_profile_index[i]] = inf;
+    }
+  }
+  // second profile
+  if ( min_max_range_in_2 < range_threshold)
+  {
+    float one_step_in_2 = min_max_range_in_2 / second_profile_index.size();
+    for (int i = 0; i < second_profile_index.size(); i++)
+    {
+      if (temp_scan[lower_2_index] <= temp_scan[upper_2_index])
+      {
+        temp_scan[second_profile_index[i]] = temp_scan[lower_2_index] + one_step_in_2 * i;
+      }
+      else
+      {
+        temp_scan[second_profile_index[i]] = temp_scan[lower_2_index] - one_step_in_2 * i;
+      }
+    }
+  }
+  else
+  {
+    for (int i = 0; i < second_profile_index.size(); i++)
+    {
+      temp_scan[second_profile_index[i]] = inf;
+    }
+  }
+  // third profile
+  if ( min_max_range_in_3 < range_threshold)
+  {
+    float one_step_in_3 = min_max_range_in_3 / third_profile_index.size();
+    for (int i = 0; i < third_profile_index.size(); i++)
+    {
+      if (temp_scan[lower_3_index] <= temp_scan[upper_3_index])
+      {
+        temp_scan[third_profile_index[i]] = temp_scan[lower_3_index] + one_step_in_3 * i;
+      }
+      else
+      {
+        temp_scan[third_profile_index[i]] = temp_scan[lower_3_index] - one_step_in_3 * i;
+      }
+    }
+  }
+  else
+  {
+    for (int i = 0; i < third_profile_index.size(); i++)
+    {
+      temp_scan[third_profile_index[i]] = inf;
+    }
+  }
+  // fourth profile
+  if ( min_max_range_in_4 < range_threshold)
+  {
+    float one_step_in_4 = min_max_range_in_4 / fourth_profile_index.size();
+    for (int i = 0; i < fourth_profile_index.size(); i++)
+    {
+      if (temp_scan[lower_4_index] <= temp_scan[upper_4_index])
+      {
+        temp_scan[fourth_profile_index[i]] = temp_scan[lower_4_index] + one_step_in_4 * i;
+      }
+      else
+      {
+        temp_scan[fourth_profile_index[i]] = temp_scan[lower_4_index] - one_step_in_4 * i;
+      }
+    }
+  }
+  else
+  {
+    for (int i = 0; i < fourth_profile_index.size(); i++)
+    {
+      temp_scan[fourth_profile_index[i]] = inf;
+    }
+  }
+  for (int i = 0; i < msg->ranges.size(); i++)
+  {
+    converted_msg->ranges.push_back(temp_scan[i]);
+  }
+  // 필터링된 데이터 발행
+  publisher_->publish(*converted_msg);
+}
+
+int main(int argc, char **argv)
 {
   rclcpp::init(argc, argv);
-  rclcpp::spin(std::make_shared<ScanConverter>());
+  rclcpp::spin(std::make_shared<ScanConverter2>());
   rclcpp::shutdown();
   return 0;
 }
