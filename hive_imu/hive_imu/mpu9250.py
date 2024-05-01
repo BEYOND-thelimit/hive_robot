@@ -24,7 +24,7 @@ class MyPythonNode(Node):
             namespace='',
             parameters=[
                 ('frequency', 30),
-                ('frame_id', 'imu_link'),
+                ('frame_id', 'robot1_imu_link'),
                 ('i2c_address', 0x68),
                 ('i2c_port', 1),
                 ('acceleration_scale', [1.0, 1.0, 1.0]),
