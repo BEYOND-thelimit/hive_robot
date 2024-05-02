@@ -10,7 +10,7 @@ def generate_launch_description():
 
     return LaunchDescription([
         Node(
-           package="mpu9250",
+           package="hive_imu",
            executable="mpu9250",
            name="mpu9250",
              parameters=[
@@ -20,7 +20,9 @@ def generate_launch_description():
                 "magnetometer_bias": [0.4533159894397744, 3.4555818146055564, -5.984038606178013], 
                 "magnetometer_transform": [   0.9983016121720226, 0.044890057238382707, 0.007231924972024632, 
                                     0.044890057238382707, 1.2981683205953654, -0.1173361838042438, 
-                                    0.007231924972024633, -0.11733618380424381, 0.7835617468652673]}  
-                ],
+                                    0.007231924972024633, -0.11733618380424381, 0.7835617468652673],
+                "frame_id": 'robot1_imu_link',
+                }
+            ],
         )
     ])

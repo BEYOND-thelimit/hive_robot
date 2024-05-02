@@ -22,7 +22,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [        
-            'mpu9250 = mpu9250.mpu9250:main'
+            'mpu9250 = hive_imu.mpu9250:main'
         ],
     },
 )
