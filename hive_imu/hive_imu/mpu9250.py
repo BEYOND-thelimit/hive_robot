@@ -13,7 +13,8 @@ from rclpy.node import Node
 
 from sensor_msgs.msg import Imu
 
-from math import sin, cos, radians
+import math
+from math import sin, cos, radians, atan2, pi
 import tf_transformations
 
 
@@ -24,7 +25,7 @@ class MyPythonNode(Node):
             namespace='',
             parameters=[
                 ('frequency', 30),
-                ('frame_id', 'imu_link'),
+                ('frame_id', 'imu_link_enu'),
                 ('i2c_address', 0x68),
                 ('i2c_port', 1),
                 ('acceleration_scale', [1.0, 1.0, 1.0]),
@@ -89,7 +90,8 @@ class MyPythonNode(Node):
         # convert to enu frame to using ROS
         enu_roll = ned_roll
         enu_pitch = -ned_pitch
-        enu_yaw = -ned_yaw
+        enu_yaw = ned_yaw + pi
+        yaw_enu = atan2(sin(yaw_enu), cos(yaw_enu))
         enu_linear_acceleration = [ned_linear_acceleration[0], -ned_linear_acceleration[1], -ned_linear_acceleration[2]]
         enu_angular_velocity = [ned_angular_velocity[0], -ned_angular_velocity[1], -ned_angular_velocity[2]]
 
