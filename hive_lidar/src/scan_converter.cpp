@@ -22,7 +22,7 @@ ScanConverter2::ScanConverter2(/* args */) : Node("scan_converter2")
 {
   subscription_ = this->create_subscription<sensor_msgs::msg::LaserScan>(
         "/robot1/scan", rclcpp::SensorDataQoS(), std::bind(&ScanConverter2::sub_callback, this, std::placeholders::_1));
-  publisher_ = this->create_publisher<sensor_msgs::msg::LaserScan>("/robot1/converted_scan", 10);
+  publisher_ = this->create_publisher<sensor_msgs::msg::LaserScan>("/converted_scan", 10);
 }
 
 ScanConverter2::~ScanConverter2()
