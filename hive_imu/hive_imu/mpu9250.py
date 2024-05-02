@@ -91,7 +91,7 @@ class MyPythonNode(Node):
         enu_roll = ned_roll
         enu_pitch = -ned_pitch
         enu_yaw = ned_yaw + pi
-        yaw_enu = atan2(sin(yaw_enu), cos(yaw_enu))
+        enu_yaw = atan2(sin(enu_yaw), cos(enu_yaw))
         enu_linear_acceleration = [ned_linear_acceleration[0], -ned_linear_acceleration[1], -ned_linear_acceleration[2]]
         enu_angular_velocity = [ned_angular_velocity[0], -ned_angular_velocity[1], -ned_angular_velocity[2]]
 
