@@ -79,29 +79,36 @@ class MyPythonNode(Node):
             self.imu.AccelVals[0], self.imu.AccelVals[1], self.imu.AccelVals[2],\
             self.imu.GyroVals[0], self.imu.GyroVals[1], self.imu.GyroVals[2],\
 	        self.imu.MagVals[0], self.imu.MagVals[1], self.imu.MagVals[2], deltaTime)
-        yaw = self.sensorfusion.yaw
-        pitch = self.sensorfusion.pitch
-        roll = self.sensorfusion.roll
+
+        ned_linear_acceleration = [self.imu.AccelVals[0], self.imu.AccelVals[1], self.imu.AccelVals[2]]
+        ned_angular_velocity = [self.imu.GyroVals[0], self.imu.GyroVals[1], self.imu.GyroVals[2]]
+        ned_yaw = self.sensorfusion.yaw
+        ned_pitch = self.sensorfusion.pitch
+        ned_roll = self.sensorfusion.roll
+
+        # convert to enu frame to using ROS
+        enu_roll = ned_roll
+        enu_pitch = -ned_pitch
+        enu_yaw = -ned_yaw
+        enu_linear_acceleration = [ned_linear_acceleration[0], -ned_linear_acceleration[1], -ned_linear_acceleration[2]]
+        enu_angular_velocity = [ned_angular_velocity[0], -ned_angular_velocity[1], -ned_angular_velocity[2]]
 
         msg.header.stamp = self.get_clock().now().to_msg()
         msg.header.frame_id = self.get_parameter('frame_id')._value
         # Direct measurements
         msg.linear_acceleration_covariance = [0.0025, 0.0, 0.0, 0.0, 0.0025, 0.0, 0.0, 0.0, 0.0025]
-        msg.linear_acceleration.x = self.imu.AccelVals[0]
-        msg.linear_acceleration.y = self.imu.AccelVals[1]
-        msg.linear_acceleration.z = self.imu.AccelVals[2]
+        msg.linear_acceleration.x = enu_linear_acceleration[0]
+        msg.linear_acceleration.y = enu_linear_acceleration[1]
+        msg.linear_acceleration.z = enu_linear_acceleration[2]
         msg.angular_velocity_covariance = [0.0025, 0.0, 0.0, 0.0, 0.0025, 0.0, 0.0, 0.0, 0.0025]
-        msg.angular_velocity.x = (self.imu.GyroVals[0]) #TODO this is acceleration not velocity (?!)
-        msg.angular_velocity.y = (self.imu.GyroVals[1]) #TODO this is acceleration not velocity (?!)
-        msg.angular_velocity.z = (self.imu.GyroVals[2]) #TODO this is acceleration not velocity (?!)
-        #msg.angular_velocity.x = 0.0 #TODO this is acceleration not velocity (?!)
-        #msg.angular_velocity.y = 0.0 #TODO this is acceleration not velocity (?!)
-        #msg.angular_velocity.z = 0.0 #TODO this is acceleration not velocity (?!)
+        msg.angular_velocity.x = enu_angular_velocity[0]
+        msg.angular_velocity.y = enu_angular_velocity[1]
+        msg.angular_velocity.z = enu_angular_velocity[2]
         # Calculate euler angles, convert to quaternion and store in message
         msg.orientation_covariance = [0.0025, 0.0, 0.0, 0.0, 0.0025, 0.0, 0.0, 0.0, 0.0025]
         # Convert to quaternion
         quat = tf_transformations.quaternion_from_euler(
-            radians(roll), radians(pitch), radians(yaw))
+            radians(enu_roll), radians(enu_pitch), radians(enu_yaw))
         msg.orientation.x = quat[0]
         msg.orientation.y = quat[1]
         msg.orientation.z = quat[2]
