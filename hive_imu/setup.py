@@ -22,7 +22,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [        
-            'mpu9250 = hive_imu.mpu9250:main'
+            'mpu9250 = hive_imu.mpu9250:main',
+            'tf_ned_to_enu = hive_imu.tf_ned_to_enu:main',
         ],
     },
 )
