@@ -22,7 +22,7 @@ def generate_launch_description():
                     ],
         remappings=[
             ('/cmd_vel', f'/{robot_name}/cmd_vel'),
-            ('/odometry/filtered', f'/{robot_name}/odom_filtered')
+            ('/odometry/filtered', f'/{robot_name}/ekf_odom')
         ]
     )
     start_lidar_odom = Node(
