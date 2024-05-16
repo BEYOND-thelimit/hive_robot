@@ -108,7 +108,7 @@ class MyPythonNode(Node):
         msg.orientation.z = quat[2]
         msg.orientation.w = quat[3]
         self.publisher_imu_values_.publish(msg)
-        print("roll: {:4.2f} \tpitch : {:4.2f} \tyaw : {:4.2f}".format(self.sensorfusion.roll, self.sensorfusion.pitch, self.sensorfusion.yaw))
+        self.get_logger().info("roll: {:4.2f} \tpitch : {:4.2f} \tyaw : {:4.2f}".format(self.sensorfusion.roll, self.sensorfusion.pitch, self.sensorfusion.yaw))
 
 def main(args=None):
     rclpy.init(args=args)
