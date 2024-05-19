@@ -18,8 +18,7 @@ def generate_launch_description():
         name='ekf_filter_node',
         output='screen',
         parameters=[config_ekf,
-                    {'use_sim_time': True},
-                    ],
+            ],
         remappings=[
             ('/cmd_vel', f'/{robot_name}/cmd_vel'),
             ('/odometry/filtered', f'/{robot_name}/ekf_odom')
