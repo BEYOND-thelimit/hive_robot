@@ -284,12 +284,14 @@ void LaserScanMatcher::scanCallback(const sensor_msgs::msg::LaserScan::SharedPtr
   {
     createCache(scan_msg);    // caches the sin and cos of all angles
 
-    // cache the static tf from base to laser
-    if (!getBaseToLaserTf(laser_frame_))
-    {
-      RCLCPP_WARN(get_logger(),"Skipping scan");
-      return;
-    }
+    // Set our base_link -> lidar_link tf
+    tf2::Stamped<tf2::Transform> base_to_laser_tf;
+    base_to_laser_tf.setOrigin(tf2::Vector3(-0.105, 0.000, 0.444));
+    tf2::Quaternion q(0.000, 0.000, 0.000, 1.000);
+    base_to_laser_tf.setRotation(q);
+
+    base_to_laser_ = base_to_laser_tf;
+    laser_to_base_ = base_to_laser_.inverse();
 
     laserScanToLDP(scan_msg, prev_ldp_scan_);
     last_icp_time_ = scan_msg->header.stamp;
@@ -300,38 +302,6 @@ void LaserScanMatcher::scanCallback(const sensor_msgs::msg::LaserScan::SharedPtr
   laserScanToLDP(scan_msg, curr_ldp_scan);
   processScan(curr_ldp_scan, scan_msg->header.stamp);
 }
-
-bool LaserScanMatcher::getBaseToLaserTf (const std::string& frame_id)
-{
-  rclcpp::Time t = now();
-
-  tf2::Stamped<tf2::Transform> base_to_laser_tf;
-  geometry_msgs::msg::TransformStamped laser_pose_msg;
-  try
-  {
-      laser_pose_msg = tf_buffer_->lookupTransform(base_frame_, frame_id, t,rclcpp::Duration(10,0));
-      base_to_laser_tf.setOrigin(tf2::Vector3(laser_pose_msg.transform.translation.x,\
-                                              laser_pose_msg.transform.translation.y,\
-                                              laser_pose_msg.transform.translation.z));
-      tf2::Quaternion q(laser_pose_msg.transform.rotation.x,\
-                        laser_pose_msg.transform.rotation.y,\
-                        laser_pose_msg.transform.rotation.z,\
-                        laser_pose_msg.transform.rotation.w);
-      base_to_laser_tf.setRotation(q);
-
-  }
-  catch (tf2::TransformException ex)
-  {
-    RCLCPP_INFO(get_logger(),"Could not get initial transform from base to laser frame, %s", ex.what());
-    return false;
-  }
-
-  base_to_laser_ = base_to_laser_tf;
-  laser_to_base_ = base_to_laser_.inverse();
-
-  return true;
-}
-
 
 bool LaserScanMatcher::processScan(LDP& curr_ldp_scan, const rclcpp::Time& time)
 {

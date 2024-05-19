@@ -110,8 +110,6 @@ private:
 
   rclcpp::Time last_icp_time_;
 
-  bool getBaseToLaserTf (const std::string& frame_id);
-
   bool processScan(LDP& curr_ldp_scan, const rclcpp::Time& time);
   void laserScanToLDP(const sensor_msgs::msg::LaserScan::SharedPtr& scan, LDP& ldp);
   void createTfFromXYTheta(double x, double y, double theta, tf2::Transform& t);
