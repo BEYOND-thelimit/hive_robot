@@ -34,6 +34,9 @@ def generate_launch_description():
             {'odom_frame': f'{robot_name}_odom'},
             {'laser_frame': f'{robot_name}_lidar_link'},
             {'publish_odom': f'{robot_name}/laser_odom'},
+        ],
+        remappings=[
+            ('/converted_scan', f'/{robot_name}/converted_scan'),
         ]
     )
     start_lidar_converter = Node(
