@@ -1,7 +1,7 @@
 # tutorial_ros2_motor
 Modified from CrashLab motor control lesson for use
 
-#Install pigpio
+# Install pigpio
 ```markdown
 wget https://github.com/joan2937/pigpio/archive/master.zip
 unzip master.zip
@@ -10,7 +10,7 @@ make
 sudo make install
 ```
 
-#How to set pigpio
+# How to set pigpio
 ```markdown
 // 모터 노드를 실행하기 전에 1회 실행해 줄 것
 sudo pigpiod 
