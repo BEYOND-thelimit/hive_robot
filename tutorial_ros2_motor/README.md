@@ -21,3 +21,9 @@ sudo ./x_pigpiod_if2
 //pigpiod 비정상일시, 멈추고 다시 시작할 때 사용
 sudo killall pigpiod
 ```
+
+# Use Motor Code
+```markdown
+sudo pigpiod
+ros2 run tutorial_ros2_motor motor_node
+```
