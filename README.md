@@ -1,4 +1,7 @@
 # hive_robot
+
+This repo contains **3 branches**(robot1, robot2, and robot3) for each robot. 
+
 ---
 # Motor Control
 
